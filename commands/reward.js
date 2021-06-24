@@ -10,13 +10,13 @@ class ThanksCommand extends Command {
     regex() {
       const thanksTriggers = [
         'thanks',
-        'thank',
+        'thank you',
         'thxs',
         'ty',
         'tq'
       ];
 
-      return new RegExp(thanksTriggers.join('|'), 'i');
+      return new RegExp('\\b' + thanksTriggers.join('\\b|\\b') + '\\b', 'i');
     }
 
     exec(message) {
