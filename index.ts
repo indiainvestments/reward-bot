@@ -29,7 +29,9 @@ const options: ConnectionOptions = {
     ],
     synchronize: true,
     logging: true,
-    ssl: true
+    ssl: {
+        rejectUnauthorized: false
+    }
 };
 createConnection(options)
     .then(async (connection) => {
