@@ -1,7 +1,7 @@
-import {BaseEntity, Entity, PrimaryGeneratedColumn, Column} from "typeorm";
+import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
-export class User extends BaseEntity {
+export class Users extends BaseEntity {
 
     @PrimaryGeneratedColumn()
     id: number;
@@ -14,5 +14,4 @@ export class User extends BaseEntity {
 
     @Column()
     isActive: boolean;
-
 }
