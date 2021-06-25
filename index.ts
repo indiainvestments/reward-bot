@@ -28,7 +28,8 @@ const options: ConnectionOptions = {
         __dirname + '/entity/*.ts'
     ],
     synchronize: true,
-    logging: true
+    logging: true,
+    ssl: true
 };
 createConnection(options)
     .then(async (connection) => {
