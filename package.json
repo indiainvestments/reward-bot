@@ -4,12 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "postinstall": "rm -rf build/ && tsc --skipLibCheck -p tsconfig.json",
+    "start": "node build/index.js"
   },
   "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "ts-node": "3.3.0",
+    "@types/node": "^8.0.29"
+  },
   "dependencies": {
     "discord-akairo": "8.1.0",
-    "discord.js": "12.5.3"
+    "discord.js": "12.5.3",
+    "pg": "^8.6.0",
+    "reflect-metadata": "^0.1.10",
+    "typeorm": "0.2.34",
+    "typescript": "^4.3.4"
   }
 }
