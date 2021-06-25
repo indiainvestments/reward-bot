@@ -25,7 +25,7 @@ const options: ConnectionOptions = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE_NAME,
     entities: [
-        __dirname + '/entity/*.ts'
+        __dirname + '/entity/*.js'
     ],
     synchronize: true,
     logging: true,
