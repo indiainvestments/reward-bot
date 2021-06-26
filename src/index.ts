@@ -34,20 +34,10 @@ const options: ConnectionOptions = {
         rejectUnauthorized: false
     }
 };
-
-const localOptions: ConnectionOptions = {
-    ...options,
-    host: 'host',
-    port: 5432,
-    username: 'user',
-    password: 'passwd',
-    database: 'db'
-};
-const BOT = 'BOT';
-createConnection(localOptions)
+createConnection(options)
     .then(async (connection) => {
         console.log("DB ok");
-        client.login(process.env.BOT_TOKEN || BOT);
+        client.login(process.env.BOT_TOKEN);
     })
     .catch((err) => console.log("DB error", err));
 
