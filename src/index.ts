@@ -29,7 +29,7 @@ const options: ConnectionOptions = {
         __dirname + '/entity/*.js',
     ],
     synchronize: true,
-    logging: true,
+    logging: false,
     ssl: {
         rejectUnauthorized: false
     }
