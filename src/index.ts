@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { createConnection, ConnectionOptions } from "typeorm";
 import { AkairoClient, CommandHandler } from 'discord-akairo';
-
 class MyClient extends AkairoClient {
     public commandHandler: CommandHandler = new CommandHandler(this, {
         directory: __dirname + '/commands/',
@@ -16,7 +15,7 @@ class MyClient extends AkairoClient {
         this.commandHandler.loadAll();
     }
 }
-const client = new MyClient();
+export const client = new MyClient();
 
 const options: ConnectionOptions = {
     type: 'postgres',
