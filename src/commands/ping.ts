@@ -1,4 +1,5 @@
-const { Command } = require('discord-akairo');
+import { Command } from 'discord-akairo';
+import { Message } from 'discord.js';
 
 class PingCommand extends Command {
     constructor() {
@@ -7,7 +8,7 @@ class PingCommand extends Command {
         });
     }
 
-    exec(message) {
+    async exec(message: Message) {
         return message.reply('Pong!');
     }
 }
