@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "target": "es6",
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "outDir": "./build",
+        "rootDir": "./src",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "sourceMap": false,
+        "skipLibCheck": true
+    },
+    "include": ["./src/**/*.ts"],
+    "exclude": ["node_modules/"]
+ }
