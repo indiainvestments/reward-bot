@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { createConnection, ConnectionOptions } from "typeorm";
 import { AkairoClient, CommandHandler } from 'discord-akairo';
+import { discord_bot_token, reward_event_db_host, reward_event_db_name, reward_event_db_password, reward_event_db_port, reward_event_db_username } from "./env";
 class MyClient extends AkairoClient {
     public commandHandler: CommandHandler = new CommandHandler(this, {
         directory: __dirname + '/commands/',
@@ -19,11 +20,11 @@ export const client = new MyClient();
 
 const options: ConnectionOptions = {
     type: 'postgres',
-    host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT),
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE_NAME,
+    host: reward_event_db_host,
+    port: reward_event_db_port,
+    username: reward_event_db_username,
+    password: reward_event_db_password,
+    database: reward_event_db_name,
     entities: [
         __dirname + '/entity/*.js',
     ],
@@ -36,7 +37,7 @@ const options: ConnectionOptions = {
 createConnection(options)
     .then(async (connection) => {
         console.log("DB ok");
-        client.login(process.env.BOT_TOKEN);
+        client.login(discord_bot_token);
     })
     .catch((err) => console.log("DB error", err));
 

@@ -4,18 +4,19 @@ import {ClientOpts, createClient, RedisClient} from 'redis';
 import { client } from '../index';
 import { KarmaInfo } from "../types";
 import { promisify } from "util";
+import { guild_id, karma_info_db_host, karma_info_db_password, karma_info_db_port } from "../env";
 
 class Repository {
     private redisClient: RedisClient;
     private getAsync: (key: string) => string;
     private setAsync: (key: string, val: string) => void;
     private getKeysAsync: (keys: string) => string[];
-
+    
     constructor() {
         const redisOpts: ClientOpts = {
-            host: 'host',
-            port: 11316,
-            password: 'passwd'
+            host: karma_info_db_host,
+            port: karma_info_db_port,
+            password: karma_info_db_password
         };
         this.redisClient = createClient(redisOpts);
         this.getAsync = promisify(this.redisClient.get).bind(this.redisClient);
@@ -23,16 +24,16 @@ class Repository {
         this.getKeysAsync = promisify(this.redisClient.keys).bind(this.redisClient);
     }
 
-    public saveRewardEvent(rewarder: User, rewardees: User[], channelID: string) {
+    public saveRewardEvent(rewarder: User, rewardees: User[], channelID: string, karma: number = 1) {
         rewardees.forEach(async (rewardee) => {
             const eventInstance = new RewardEvent();
             eventInstance.rewarder = rewarder.id;
             eventInstance.timestamp = new Date();
-            eventInstance.karma = 1;
+            eventInstance.karma = karma;
             eventInstance.channel = channelID;
             eventInstance.rewardee = rewardee.id;
             await RewardEvent.save(eventInstance);
-            this.setRewardeeChannelKarma(rewardee.id, channelID);
+            this.setRewardeeChannelKarma(rewardee.id, channelID, karma);
         });
         
     }
@@ -50,7 +51,7 @@ class Repository {
         }));
         const userIDList = karmaInfo.map(info => info.userID);
         
-        const guild = await client.guilds.fetch('842338736124854293');
+        const guild = await client.guilds.fetch(guild_id);
         const guildChannels = guild.channels.valueOf();
         const userList = await guild.members.fetch({user: userIDList});
         const userKarmaList = karmaInfo.map(info => {
@@ -64,7 +65,7 @@ class Repository {
         return userKarmaList.sort((a, b) => b.karma - a.karma);
     }
 
-    private setRewardeeChannelKarma(userID: string, channelID: string): void {
+    private setRewardeeChannelKarma(userID: string, channelID: string, karmaPts: number): void {
         this.redisClient.GET(`karmaInfo:${userID}:${channelID}`, (err: Error, reply: string) => {
             if (err) {
                 console.log(err);
@@ -74,7 +75,7 @@ class Repository {
             if (reply) {
                 karma = parseInt(reply);
             }
-            karma = karma + 1;
+            karma = karma + karmaPts;
             this.redisClient.SET(`karmaInfo:${userID}:${channelID}`, `${karma}`, (err: Error) => {
                 if (err) {
                     console.log(err);
