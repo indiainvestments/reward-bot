@@ -20,7 +20,6 @@ class ThanksCommand extends Command {
 
     exec(message: Message) {
         const { channel, mentions, author } = message;
-        console.log("reward", channel);
         if (mentions.users.size <= 0) return;
         const rewardees: User[] = [];
         mentions.users.forEach((user: User): void => {
