@@ -2,7 +2,7 @@ import { User } from "discord.js";
 import { RewardEvent } from "../entity/RewardEvent";
 import {ClientOpts, createClient, RedisClient} from 'redis';
 import { client } from '../index';
-import { KarmaInfo } from "../types";
+import { KarmaInfo, KarmaInfoDisplay, UserKarmaInfo } from "../types";
 import { promisify } from "util";
 import { guild_id, karma_info_db_host, karma_info_db_password, karma_info_db_port } from "../env";
 
@@ -38,7 +38,7 @@ class Repository {
         
     }
 
-    public async getLeaderboardInfo() {
+    public async getLeaderboardInfo(): Promise<KarmaInfoDisplay[]> {
         const keys = await this.getKeysAsync('karmaInfo:*');
         const karmaInfo: KarmaInfo[] = await Promise.all(keys.map(async (key) => {
             const karma = await this.getAsync(key);
@@ -55,14 +55,39 @@ class Repository {
         const guildChannels = guild.channels.valueOf();
         const userList = await guild.members.fetch({user: userIDList});
         const userKarmaList = karmaInfo.map(info => {
-            const userName = userList.get(info.userID).user.username;
+            const user = userList.get(info.userID).user;
             return {
-                user: userName,
+                user,
                 karma: info.karma,
-                channel: guildChannels.get(info.channelID)?.name
+                channel: guildChannels.get(info.channelID)
             }
         });
         return userKarmaList.sort((a, b) => b.karma - a.karma);
+    }
+
+    public async getUserKarmaInfo(userID: string): Promise<UserKarmaInfo[] | undefined> {
+        const keys = await this.getKeysAsync(`karmaInfo:${userID}:*`);
+        const karmaInfo: KarmaInfo[] = await Promise.all(keys.map(async (key) => {
+            const karma = await this.getAsync(key);
+            const [_, userID, channelID] = key.split(':');
+            return {
+                userID,
+                channelID,
+                karma: parseInt(karma)
+            }
+        }));
+        if (karmaInfo.length <= 0) {
+            return undefined;
+        }
+
+        const guild = await client.guilds.fetch(guild_id);
+        const guildChannels = guild.channels.valueOf();
+        return karmaInfo.map((info) => {
+            return {
+                karma: info.karma,
+                channel: guildChannels.get(info.channelID)
+            }
+        });
     }
 
     private setRewardeeChannelKarma(userID: string, channelID: string, karmaPts: number): void {
