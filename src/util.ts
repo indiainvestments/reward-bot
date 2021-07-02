@@ -9,10 +9,9 @@ export function getEmbedFromLeaderboardList(usersKarma: Record<string, number>):
         return `**${rank}.** <@${userID}>   **${karma}** points`;
     })
     const desc = list.join('\n\n');
-    embed.setDescription(desc);
-    embed.setTitle('Leaderboard')
-    embed.setFooter('Leaderboad');
-    return embed;
+    return embed.setDescription(desc)
+            .setTitle('Leaderboard')
+            .setFooter('Leaderboard');
 }
 
 export function getEmbedFromUserKarma(userKarma: UserKarmaInfo[]) {
@@ -24,8 +23,7 @@ export function getEmbedFromUserKarma(userKarma: UserKarmaInfo[]) {
         return `**${rank}.**  <#${channelID}>        **${karma}**`;
     })
     const desc = list.join('\n\n');
-    embed.setDescription(desc);
-    embed.setTitle('Karma')
-    embed.setFooter('Karma');
-    return embed;
+    return embed.setDescription(desc)
+            .setTitle('Karma')
+            .setFooter('Karma');
 }

@@ -3,15 +3,12 @@ import { RewardEvent } from "../entity/RewardEvent";
 import {ClientOpts, createClient, RedisClient} from 'redis';
 import { client } from '../index';
 import { KarmaInfo, KarmaInfoDisplay, UserKarmaInfo } from "../types";
-import { promisify } from "util";
 import { guild_id, karma_info_db_host, karma_info_db_password, karma_info_db_port } from "../env";
+import DBHelperImpl from "../helper/DBHelperImpl";
 
 class Repository {
     private redisClient: RedisClient;
-    private getAsync: (key: string) => string;
-    private setAsync: (key: string, val: string) => void;
-    private getKeysAsync: (keys: string) => string[];
-    
+    private dbHelper: DBHelperImpl;
     constructor() {
         const redisOpts: ClientOpts = {
             host: karma_info_db_host,
@@ -19,13 +16,11 @@ class Repository {
             password: karma_info_db_password
         };
         this.redisClient = createClient(redisOpts);
-        this.getAsync = promisify(this.redisClient.get).bind(this.redisClient);
-        this.setAsync = promisify(this.redisClient.set).bind(this.redisClient);
-        this.getKeysAsync = promisify(this.redisClient.keys).bind(this.redisClient);
+        this.dbHelper = new DBHelperImpl(this.redisClient);
     }
 
-    public saveRewardEvent(rewarder: User, rewardees: User[], channelID: string, karma: number = 1) {
-        rewardees.forEach(async (rewardee) => {
+    public async saveRewardEvent(rewarder: User, rewardees: User[], channelID: string, karma: number = 1) {
+        await Promise.all(rewardees.map(async (rewardee) => {
             const eventInstance = new RewardEvent();
             eventInstance.rewarder = rewarder.id;
             eventInstance.timestamp = new Date();
@@ -33,24 +28,14 @@ class Repository {
             eventInstance.channel = channelID;
             eventInstance.rewardee = rewardee.id;
             await RewardEvent.save(eventInstance);
-            this.setRewardeeChannelKarma(rewardee.id, channelID, karma);
-        });
+            await this.setRewardeeChannelKarma(rewardee.id, channelID, karma);
+        }));
         
     }
 
     public async getLeaderboardInfo(): Promise<KarmaInfoDisplay[]> {
-        const keys = await this.getKeysAsync('karmaInfo:*');
-        const karmaInfo: KarmaInfo[] = await Promise.all(keys.map(async (key) => {
-            const karma = await this.getAsync(key);
-            const [_, userID, channelID] = key.split(':');
-            return {
-                userID,
-                channelID,
-                karma: parseInt(karma)
-            }
-        }));
+        const karmaInfo = await this.dbHelper.getAllUserKarmaInfo();
         const userIDList = karmaInfo.map(info => info.userID);
-        
         const guild = await client.guilds.fetch(guild_id);
         const guildChannels = guild.channels.valueOf();
         const userList = await guild.members.fetch({user: userIDList});
@@ -66,20 +51,10 @@ class Repository {
     }
 
     public async getUserKarmaInfo(userID: string): Promise<UserKarmaInfo[] | undefined> {
-        const keys = await this.getKeysAsync(`karmaInfo:${userID}:*`);
-        const karmaInfo: KarmaInfo[] = await Promise.all(keys.map(async (key) => {
-            const karma = await this.getAsync(key);
-            const [_, userID, channelID] = key.split(':');
-            return {
-                userID,
-                channelID,
-                karma: parseInt(karma)
-            }
-        }));
+        const karmaInfo: KarmaInfo[] = await this.dbHelper.getUserKarmaInfo(userID);
         if (karmaInfo.length <= 0) {
             return undefined;
         }
-
         const guild = await client.guilds.fetch(guild_id);
         const guildChannels = guild.channels.valueOf();
         return karmaInfo.map((info) => {
@@ -90,24 +65,9 @@ class Repository {
         });
     }
 
-    private setRewardeeChannelKarma(userID: string, channelID: string, karmaPts: number): void {
-        this.redisClient.GET(`karmaInfo:${userID}:${channelID}`, (err: Error, reply: string) => {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            let karma = 0;
-            if (reply) {
-                karma = parseInt(reply);
-            }
-            karma = karma + karmaPts;
-            this.redisClient.SET(`karmaInfo:${userID}:${channelID}`, `${karma}`, (err: Error) => {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-            });
-        });
+    private async setRewardeeChannelKarma(userID: string, channelID: string, karmaPts: number): Promise<void> {
+        const currentKarma = await this.dbHelper.getKarmaForUserAndChannel(userID, channelID);
+        await this.dbHelper.setKarmaForUserAndChannel(userID, channelID, (currentKarma || 0) + karmaPts);
     }
 }
 
