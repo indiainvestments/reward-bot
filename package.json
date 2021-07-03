@@ -4,15 +4,38 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "source ./.env && rm -rf build/ && tsc -p tsconfig.json && npm start",
+    "lint": "eslint . --ext .ts",
+    "prettier": "prettier --config .prettierrc --write \"**/*.{ts,js}\"",
     "postinstall": "rm -rf build/ && tsc -p tsconfig.json",
-    "start": "node build/index.js",
-    "dev": "rm -rf build/ && tsc -p tsconfig.json && npm start"
+    "start": "node build/index.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint",
+      "prettier"
+    ]
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^8.0.29",
     "@types/redis": "^2.8.30",
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1",
+    "eslint": "^7.30.0",
+    "eslint-config-airbnb-typescript": "^12.3.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-prettier": "^3.4.0",
+    "husky": "^4.3.8",
+    "lint-staged": "^11.0.0",
+    "prettier": "2.3.2",
     "ts-node": "3.3.0"
   },
   "dependencies": {
