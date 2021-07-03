@@ -19,11 +19,21 @@ export default class ThanksCommand extends Command {
     regex = new RegExp('\\b' + this.thanksTriggers.join('\\b|\\b') + '\\b', 'i');
 
     exec(message: Message) {
-        const { channel, mentions, author } = message;
+        const { channel, mentions, author: rewarder } = message;
+
+        // if there is no mention, do nothing
         if (mentions.users.size <= 0) return;
-        const rewardees: User[] = mentions.users.filter((user: User) => user.id !== author.id).array();
+
+        // else, create rewardee list
+        const rewardees: User[] = mentions.users.filter((mentionedUser: User) => mentionedUser.id !== rewarder.id).array();
+
+        // if rewarder only mentioned themselves, do nothing
         if (rewardees.length <= 0) return;
-        Repository.saveRewardEvent(author, rewardees, channel.id);
+
+        // else, save reward transaction in database
+        Repository.saveRewardEvent(rewarder, rewardees, channel.id);
+
+        // acknowledge the transaction
         return channel.send(
             CommandUtil.transformOptions(`Rewarded ${rewardees.map((user: User) => user)}`),
         );
