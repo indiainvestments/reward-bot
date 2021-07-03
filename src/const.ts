@@ -1,0 +1,1 @@
+export const no_karma_reply = "You don't have any karma points!! start helping to get karma!";
