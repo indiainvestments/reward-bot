@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "source ./.env && rm -rf build/ && tsc -p tsconfig.json && npm start",
+    "dev": "nodemon build/index.js",
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --config .prettierrc --write \"**/*.{ts,js}\"",
     "postinstall": "rm -rf build/ && tsc -p tsconfig.json",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "watch": "tsc -p tsconfig.json -w"
   },
   "husky": {
     "hooks": {
@@ -35,12 +36,14 @@
     "eslint-plugin-prettier": "^3.4.0",
     "husky": "^4.3.8",
     "lint-staged": "^11.0.0",
+    "nodemon": "^2.0.10",
     "prettier": "2.3.2",
     "ts-node": "3.3.0"
   },
   "dependencies": {
     "discord-akairo": "8.1.0",
     "discord.js": "12.5.3",
+    "dotenv-safe": "^8.2.0",
     "pg": "^8.6.0",
     "redis": "^3.1.2",
     "reflect-metadata": "^0.1.10",

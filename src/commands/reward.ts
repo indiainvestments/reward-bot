@@ -13,7 +13,7 @@ export default class ThanksCommand extends Command {
 
   regex = new RegExp(`\\b${this.thanksTriggers.join('\\b|\\b')}\\b`, 'i');
 
-  exec(message: Message) {
+  async exec(message: Message) {
     const { channel, mentions, author: rewarder } = message;
 
     // if there is no mention, do nothing
@@ -28,7 +28,7 @@ export default class ThanksCommand extends Command {
     if (rewardees.length <= 0) return;
 
     // else, save reward transaction in database
-    Repository.saveRewardEvent(rewarder, rewardees, channel.id);
+    await Repository.saveRewardEvent(rewarder, rewardees, channel.id);
 
     // acknowledge the transaction
     return channel.send(
