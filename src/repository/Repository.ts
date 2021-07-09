@@ -25,18 +25,14 @@ class Repository {
   public async saveRewardEvent(rewarder: User, rewardees: User[], channelID: string, karma = 1) {
     await Promise.all(
       rewardees.map(async (rewardee) => {
-        getConnection()
-          .transaction(async (_) => {
-            await RewardEvent.create({
-              channel: channelID,
-              rewardee: rewardee.id,
-              karma,
-              timestamp: new Date(),
-              rewarder: rewarder.id,
-            }).save();
-            await this.setRewardeeChannelKarma(rewardee.id, channelID, karma);
-          })
-          .catch(console.log);
+        await RewardEvent.create({
+          channel: channelID,
+          rewardee: rewardee.id,
+          karma,
+          timestamp: new Date(),
+          rewarder: rewarder.id,
+        }).save();
+        await this.setRewardeeChannelKarma(rewardee.id, channelID, karma);
       }),
     );
   }

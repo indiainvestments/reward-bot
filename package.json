@@ -9,7 +9,8 @@
     "prettier": "prettier --config .prettierrc --write \"**/*.{ts,js}\"",
     "postinstall": "rm -rf build/ && tsc -p tsconfig.json",
     "start": "node build/index.js",
-    "watch": "tsc -p tsconfig.json -w"
+    "watch": "tsc -p tsconfig.json -w",
+    "build": " rm -rf build/ && tsc -p tsconfig.json"
   },
   "husky": {
     "hooks": {
