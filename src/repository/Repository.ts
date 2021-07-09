@@ -1,6 +1,5 @@
 import { User } from 'discord.js';
 import { ClientOpts, createClient, RedisClient } from 'redis';
-import { getConnection } from 'typeorm';
 import { RewardEvent } from '../entity/RewardEvent';
 import { DISCORD_GUILD_ID, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from '../env';
 import DBHelperImpl from '../helper/DBHelperImpl';
