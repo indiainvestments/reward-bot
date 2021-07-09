@@ -1,10 +1,10 @@
 import { User } from 'discord.js';
 import { ClientOpts, createClient, RedisClient } from 'redis';
 import { RewardEvent } from '../entity/RewardEvent';
-import { client } from '../index';
-import { KarmaInfo, KarmaInfoDisplay, UserKarmaInfo } from '../types';
 import { DISCORD_GUILD_ID, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from '../env';
 import DBHelperImpl from '../helper/DBHelperImpl';
+import { client } from '../index';
+import { KarmaInfo, KarmaInfoDisplay, UserKarmaInfo } from '../types';
 
 class Repository {
   private redisClient: RedisClient;
@@ -24,13 +24,13 @@ class Repository {
   public async saveRewardEvent(rewarder: User, rewardees: User[], channelID: string, karma = 1) {
     await Promise.all(
       rewardees.map(async (rewardee) => {
-        const eventInstance = new RewardEvent();
-        eventInstance.rewarder = rewarder.id;
-        eventInstance.timestamp = new Date();
-        eventInstance.karma = karma;
-        eventInstance.channel = channelID;
-        eventInstance.rewardee = rewardee.id;
-        await RewardEvent.save(eventInstance);
+        await RewardEvent.create({
+          channel: channelID,
+          rewardee: rewardee.id,
+          karma,
+          timestamp: new Date(),
+          rewarder: rewarder.id,
+        }).save();
         await this.setRewardeeChannelKarma(rewardee.id, channelID, karma);
       }),
     );
